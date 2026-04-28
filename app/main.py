@@ -5,6 +5,7 @@ from app.db.database import db, connect_to_db, disconnect_from_mongodb
 
 
 from app.api.product_routes import router as product_routes
+from app.api.search_routes import router as search_routes
  
 #do something on app startup and closeup
 @asynccontextmanager 
@@ -20,3 +21,4 @@ app = FastAPI(title = "AI Ecommerce",
 
 #just add the router in the main
 app.include_router(product_routes, prefix = "/api/v1")
+app.include_router(search_routes, prefix="/api/v1")
