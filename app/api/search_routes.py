@@ -17,6 +17,9 @@ async def get_products_from_search_results(search_results):
     matches = search_results.get("matches", [])
     product_identifiers = [match["id"] for match in matches]
     
+    if not product_identifiers:
+        return []
+    
     db = get_database()
     collection = db[settings.PRODUCTS_COLLECTION]
     documents = await collection.find(
