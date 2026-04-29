@@ -12,6 +12,7 @@ async def connect_to_db():
     
     #try pinging the db
     await client.admin.command("ping")
+    await db[settings.PRODUCTS_COLLECTION].create_index("product_identifier")
     print("successfully connected to mongodb")
     
 

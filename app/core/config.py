@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     DATABASE_NAME : str
     PRODUCTS_COLLECTION : str
     PINECONE_API : str
+    DEEPSEEK_API : str
     
     #infer the values using the environment file
     model_config = SettingsConfigDict(env_file = ".env", extra = "ignore")

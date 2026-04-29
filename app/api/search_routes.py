@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.db.database import get_database
 from app.services.feature_extractor import featureVectorExtractor
 from app.services.pinecone_service import pineconeSearchService
+from app.services.transliteration_service import transliterationService
 
 router = APIRouter(prefix="/search")
 
@@ -72,7 +73,8 @@ async def search_by_image(file : UploadFile = File(...)):
 
 @router.post("/text")
 async def search_by_text(text : str = Body(...)):
-    text_feature_vectors = await featureVectorExtractor.extract_text_feature(text)
+    translated_text = await transliterationService.transliterate_to_english(text)
+    text_feature_vectors = await featureVectorExtractor.extract_text_feature(translated_text)
     search_results = await pineconeSearchService.search_text(text_feature_vectors)
     products = await get_products_from_search_results(search_results)
     
@@ -80,6 +82,7 @@ async def search_by_text(text : str = Body(...)):
     
     return {
         "text" : text,
+        "translated_text" : translated_text,
         "status" : "Text searched successfully",
         "results" : products
     }
