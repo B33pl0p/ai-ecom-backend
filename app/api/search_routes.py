@@ -2,6 +2,7 @@ from fastapi import UploadFile, File, Body
 from fastapi import APIRouter
 import os
 from app.services.feature_extractor import featureVectorExtractor
+from app.services.pinecone_service import pineconeSearchService
 
 router = APIRouter(prefix="/search")
 
@@ -21,22 +22,28 @@ async def search_by_image(file : UploadFile = File(...)):
     
     #get the feature vectors of the image
     image_feature_vectors = await featureVectorExtractor.extract_image_feature(file_path)
+    search_results = await pineconeSearchService.search_image(image_feature_vectors)
     
-    print(image_feature_vectors)
+    print(search_results)
     
     return  {
         "file_name" : file.filename,
-        "status" : "File uploaded to temporary directory successfully"
+        "status" : "Image searched successfully",
+        "results" : search_results
         
     }
 
 
 @router.post("/text")
 async def search_by_text(text : str = Body(...)):
-    print(text)
+    text_feature_vectors = await featureVectorExtractor.extract_text_feature(text)
+    search_results = await pineconeSearchService.search_text(text_feature_vectors)
+    
+    print(search_results)
     
     return {
         "text" : text,
-        "status" : "Text received successfully"
+        "status" : "Text searched successfully",
+        "results" : search_results
     }
     

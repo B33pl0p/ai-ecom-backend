@@ -19,5 +19,15 @@ class FeatureVectorExtractor:
         image_features= image_features / image_features.norm(dim=-1, keepdim= True)
         return image_features[0].cpu().tolist()     
         
+    async def extract_text_feature(self, text : str):
+        
+        text_tokens = clip.tokenize([text]).to(self.device)
+        
+        with torch.no_grad():
+            text_features = self.model.encode_text(text_tokens)
+        
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        return text_features[0].cpu().tolist()
+        
     
 featureVectorExtractor = FeatureVectorExtractor()
