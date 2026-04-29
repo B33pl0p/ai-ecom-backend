@@ -1,4 +1,4 @@
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Body
 from fastapi import APIRouter
 import os
 from app.services.feature_extractor import featureVectorExtractor
@@ -28,5 +28,15 @@ async def search_by_image(file : UploadFile = File(...)):
         "file_name" : file.filename,
         "status" : "File uploaded to temporary directory successfully"
         
+    }
+
+
+@router.post("/text")
+async def search_by_text(text : str = Body(...)):
+    print(text)
+    
+    return {
+        "text" : text,
+        "status" : "Text received successfully"
     }
     
