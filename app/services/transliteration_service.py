@@ -3,6 +3,7 @@ import asyncio
 import requests
 
 from app.core.config import settings
+from app.services.system_prompt import TRANSLITERATION_SYSTEM_PROMPT
 
 
 class TransliterationService:
@@ -15,17 +16,11 @@ class TransliterationService:
 
     def _transliterate_sync(self, query : str):
         payload = {
-            "model" : "deepseek-v4-flash",
+            "model" : "deepseek-chat",
             "messages" : [
                 {
                     "role" : "system",
-                    "content" : (
-                        "You are a product search query transliteration layer. "
-                        "If the user query is in Nepali Devanagari or romanized Nepali, "
-                        "convert it into concise English product search words. "
-                        "If the query is already English, return the same query cleaned up. "
-                        "Return only the final English search phrase. No explanation."
-                    )
+                    "content" : TRANSLITERATION_SYSTEM_PROMPT
                 },
                 {
                     "role" : "user",
@@ -43,10 +38,11 @@ class TransliterationService:
             json=payload,
             timeout=10
         )
-        response.raise_for_status()
+        print(response)
         
         data = response.json()
         translated_query = data["choices"][0]["message"]["content"].strip()
+        print("====",translated_query)
         return translated_query or query
 
     async def transliterate_to_english(self, query : str):

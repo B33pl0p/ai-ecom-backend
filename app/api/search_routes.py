@@ -1,9 +1,10 @@
-from fastapi import UploadFile, File, Body
+from fastapi import UploadFile, File, Body, HTTPException
 from fastapi import APIRouter
 import os
 from app.core.config import settings
 from app.db.database import get_database
 from app.services.feature_extractor import featureVectorExtractor
+from app.services.image_detection_service import imageDetectionService
 from app.services.pinecone_service import pineconeSearchService
 from app.services.transliteration_service import transliterationService
 
@@ -68,6 +69,36 @@ async def search_by_image(file : UploadFile = File(...)):
         "status" : "Image searched successfully",
         "results" : products
         
+    }
+
+
+@router.post("/detect_image")
+async def detect_image(file : UploadFile = File(...)):
+    try:
+        image_bytes = await file.read()
+        if not image_bytes:
+            raise HTTPException(
+                status_code=400,
+                detail="Image file is empty"
+            )
+
+        detection_results = await imageDetectionService.detect_clothes(
+            image_bytes,
+            file.filename or "image",
+            file.content_type
+        )
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Image detection failed: {error}"
+        )
+
+    return {
+        "file_name" : file.filename,
+        "status" : "Image detected successfully",
+        **detection_results
     }
 
 
